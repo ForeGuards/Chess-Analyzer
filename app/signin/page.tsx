@@ -146,7 +146,7 @@ export default function SignIn() {
 
               <div className="mt-8 p-6 bg-zinc-900 rounded-lg">
                 <blockquote className="text-white italic mb-4">
-                  "{testimonial.quote}"
+                  &quot;{testimonial.quote}&quot;
                 </blockquote>
                 <p className="text-blue-400 font-semibold">{testimonial.author}</p>
                 <p className="text-gray-400 text-sm">{testimonial.title}</p>
