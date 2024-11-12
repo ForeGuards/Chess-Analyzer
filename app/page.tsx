@@ -80,7 +80,9 @@ export default function Page() {
             <ThemeToggle />
             <div className="hidden md:flex items-center space-x-4">
               <Button className="bg-blue-600 hover:bg-blue-700">Sign In</Button>
-              <Button variant="outline">Try Now</Button>
+              <Link href="/sign-up">
+                <Button variant="outline">Try Now</Button>
+              </Link>
             </div>
             <Sheet>
               <SheetTrigger asChild>
@@ -110,7 +112,9 @@ export default function Page() {
                     Pricing
                   </Link>
                   <Button className="bg-blue-600 hover:bg-blue-700 w-full">Sign In</Button>
-                  <Button className="w-full" variant="outline">Try Now</Button>
+                  <Link href="/sign-up">
+                    <Button className="w-full" variant="outline">Try Now</Button>
+                  </Link>
                 </div>
               </SheetContent>
             </Sheet>
