@@ -1,11 +1,69 @@
 'use client'
 
+import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Github, Apple, Twitter, Instagram, Crown, Zap } from "lucide-react"
 import Link from "next/link"
 
 export default function SignUp() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setErrors({ ...errors, [e.target.name]: '' })
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const { email, password, confirmPassword } = formData
+    let isValid = true
+    const newErrors = { email: '', password: '', confirmPassword: '' }
+
+    // Email validation
+    if (!email) {
+      newErrors.email = 'Email is required'
+      isValid = false
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Invalid email address'
+      isValid = false
+    }
+
+    // Password validation
+    if (!password) {
+      newErrors.password = 'Password is required'
+      isValid = false
+    } else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long'
+      isValid = false
+    }
+
+    // Confirm password validation
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+      isValid = false
+    } else if (confirmPassword !== password) {
+      newErrors.confirmPassword = 'Passwords do not match'
+      isValid = false
+    }
+
+    if (isValid) {
+      // Perform sign-up logic here
+      console.log('Sign-up successful!', formData)
+    } else {
+      setErrors(newErrors)
+    }
+  }
+
   return (
     <div className="min-h-screen w-full bg-[url('/images/signup-background.png')] bg-cover bg-center bg-no-repeat">
       {/* Simplified Header */}
@@ -76,26 +134,41 @@ export default function SignUp() {
                 or use your email for registration
               </p>
 
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <Input
                   className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Email Address"
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  aria-invalid={!!errors.email}
                   required
                 />
                 <Input
                   className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Password"
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  aria-invalid={!!errors.password}
                   required
                 />
                 <Input
                   className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Confirm Password"
                   type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  aria-invalid={!!errors.confirmPassword}
                   required
                 />
-                <Button className="w-full bg-[#4338ca] hover:bg-[#4338ca]/90 transition-colors duration-300">
+                <Button
+                  type="submit"
+                  className="w-full bg-[#4338ca] hover:bg-[#4338ca]/90 transition-colors duration-300"
+                >
                   SIGN UP
                 </Button>
               </form>

@@ -77,17 +77,18 @@ export default function SignIn() {
               <div className="absolute inset-0 bg-repeat bg-center" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
             </div>
             <Crown className="w-16 h-16 mb-6 text-white/90" />
-            <h1 className="text-4xl font-bold mb-2">Welcome Back</h1>
-            <p className="text-x font-light mb-8 max-w-xs">
-              Sign in to continue your chess journey and
-              unlock your full potential!
-            </p>
+            <div className="flex flex-col items-center justify-center">
+              <h1 className="text-4xl font-bold mb-4">Sign In</h1>
+              <p className="mb-8">
+                Don&apos;t have an account? <Link href="/sign-up" className="text-blue-500 hover:text-blue-700">Sign Up</Link>
+              </p>
+            </div>
             <Button
               variant="outline"
               className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#4338ca] px-8 py-2 transition-all duration-300 transform hover:scale-105"
               asChild
             >
-              <Link href="/signup">SIGN UP</Link>
+              <Link href="/sign-up">SIGN UP</Link>
             </Button>
           </div>
 
