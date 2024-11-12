@@ -73,14 +73,6 @@ export default function SignUp() {
             <Zap className="h-6 w-6 text-blue-500" />
             <span className="text-xl font-bold text-white">Chess Analyzer</span>
           </Link>
-          <nav className="flex-grow flex justify-center">
-            <Link href="/" className="text-white hover:text-blue-400 transition-colors">
-              Home
-            </Link>
-          </nav>
-          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4">
-            <Link href="/signin">Sign In</Link>
-          </Button>
         </div>
       </header>
 
