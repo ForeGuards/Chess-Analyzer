@@ -88,7 +88,7 @@ export default function SignIn() {
               className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#4338ca] px-8 py-2 transition-all duration-300 transform hover:scale-105"
               asChild
             >
-              <Link href="/sign-up">SIGN UP</Link>
+              <Link href="/signup">SIGN UP</Link>
             </Button>
           </div>
 

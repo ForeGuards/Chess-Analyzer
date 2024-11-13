@@ -80,7 +80,7 @@ export default function Page() {
             <ThemeToggle />
             <div className="hidden md:flex items-center space-x-4">
               <Button className="bg-blue-600 hover:bg-blue-700">Sign In</Button>
-              <Link href="/sign-up">
+              <Link href="/signup">
                 <Button variant="outline">Try Now</Button>
               </Link>
             </div>
