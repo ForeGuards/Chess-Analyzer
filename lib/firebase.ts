@@ -14,7 +14,7 @@ if (!firebase.apps.length) {
   try {
     firebase.initializeApp(firebaseConfig)
   } catch (error) {
-    console.error('Firebase initialization error')
+    console.error('Firebase initialization error:', error)
   }
 }
 
