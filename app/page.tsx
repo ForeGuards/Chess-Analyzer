@@ -79,7 +79,9 @@ export default function Page() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <div className="hidden md:flex items-center space-x-4">
-              <Button className="bg-blue-600 hover:bg-blue-700">Sign In</Button>
+              <Link href="/signin">
+                <Button className="bg-blue-600 hover:bg-blue-700">Sign In</Button>
+              </Link>
               <Link href="/signup">
                 <Button variant="outline">Try Now</Button>
               </Link>
@@ -111,7 +113,9 @@ export default function Page() {
                   <Link className="text-sm font-medium" href="#">
                     Pricing
                   </Link>
-                  <Button className="bg-blue-600 hover:bg-blue-700 w-full">Sign In</Button>
+                  <Link href="/signin">
+                    <Button className="bg-blue-600 hover:bg-blue-700 w-full">Sign In</Button>
+                  </Link>
                   <Link href="/sign-up">
                     <Button className="w-full" variant="outline">Try Now</Button>
                   </Link>

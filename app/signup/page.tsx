@@ -3,8 +3,17 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Github, Apple, Twitter, Instagram, Crown, Zap } from "lucide-react"
+import { 
+  Github as GithubIcon, 
+  Apple as AppleIcon,
+  Crown as CrownIcon,
+  Sword as ChessIcon 
+} from "lucide-react"
+import { GoogleIcon } from "@/components/icons/GoogleIcon"
 import Link from "next/link"
+import firebase from 'firebase/compat/app'
+import 'firebase/compat/auth'
+import { auth } from '@/lib/firebase'
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -23,7 +32,7 @@ export default function SignUp() {
     setErrors({ ...errors, [e.target.name]: '' })
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const { email, password, confirmPassword } = formData
     let isValid = true
@@ -47,9 +56,9 @@ export default function SignUp() {
       isValid = false
     }
 
-    // Confirm password validation
+    // Confirm Password validation
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
+      newErrors.confirmPassword = 'Confirm Password is required'
       isValid = false
     } else if (confirmPassword !== password) {
       newErrors.confirmPassword = 'Passwords do not match'
@@ -57,10 +66,44 @@ export default function SignUp() {
     }
 
     if (isValid) {
-      // Perform sign-up logic here
-      console.log('Sign-up successful!', formData)
+      try {
+        await auth.createUserWithEmailAndPassword(email, password)
+        console.log('Sign-up successful!')
+      } catch (error) {
+        console.error('Sign-up error:', error)
+      }
     } else {
       setErrors(newErrors)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider()
+      await auth.signInWithPopup(provider)
+      console.log('Google sign-in successful!')
+    } catch (error) {
+      console.error('Google sign-in error:', error)
+    }
+  }
+
+  const handleGithubSignIn = async () => {
+    try {
+      const provider = new firebase.auth.GithubAuthProvider()
+      await auth.signInWithPopup(provider)
+      console.log('GitHub sign-in successful!')
+    } catch (error) {
+      console.error('GitHub sign-in error:', error)
+    }
+  }
+
+  const handleAppleSignIn = async () => {
+    try {
+      const provider = new firebase.auth.OAuthProvider('apple.com')
+      await auth.signInWithPopup(provider)
+      console.log('Apple sign-in successful!')
+    } catch (error) {
+      console.error('Apple sign-in error:', error)
     }
   }
 
@@ -70,7 +113,7 @@ export default function SignUp() {
       <header className="bg-zinc-900/80 backdrop-blur-sm">
         <div className="mx-auto max-w-5xl py-4 px-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <Zap className="h-6 w-6 text-blue-500" />
+            <ChessIcon className="h-6 w-6 text-blue-500" />
             <span className="text-xl font-bold text-white">Chess Analyzer</span>
           </Link>
         </div>
@@ -84,7 +127,7 @@ export default function SignUp() {
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0 bg-repeat bg-center" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
             </div>
-            <Crown className="w-16 h-16 mb-6 text-white/90" />
+            <CrownIcon className="w-16 h-16 mb-6 text-white/90" />
             <h1 className="text-4xl font-bold mb-2">Welcome Friend</h1>
             <p className="text-xl font-light mb-8 max-w-xs">
               To keep connected with us please login with your personal info.
@@ -106,20 +149,33 @@ export default function SignUp() {
               </h2>
               
               <div className="flex justify-center gap-6 mb-8">
-                {['github', 'apple', 'twitter', 'instagram'].map((social) => (
-                  <Button
-                    key={social}
-                    size="icon"
-                    variant="outline"
-                    className="rounded-full w-12 h-12 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
-                  >
-                    {social === 'github' && <Github className="w-6 h-6" />}
-                    {social === 'apple' && <Apple className="w-6 h-6" />}
-                    {social === 'twitter' && <Twitter className="w-6 h-6" />}
-                    {social === 'instagram' && <Instagram className="w-6 h-6" />}
-                    <span className="sr-only">Sign up with {social}</span>
-                  </Button>
-                ))}
+                <Button
+                  onClick={handleGoogleSignIn}
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full w-12 h-12 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
+                >
+                  <GoogleIcon className="w-6 h-6" />
+                  <span className="sr-only">Sign up with Google</span>
+                </Button>
+                <Button
+                  onClick={handleGithubSignIn}
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full w-12 h-12 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
+                >
+                  <GithubIcon className="w-6 h-6" />
+                  <span className="sr-only">Sign up with GitHub</span>
+                </Button>
+                <Button
+                  onClick={handleAppleSignIn}
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full w-12 h-12 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
+                >
+                  <AppleIcon className="w-6 h-6" />
+                  <span className="sr-only">Sign up with Apple</span>
+                </Button>
               </div>
 
               <p className="text-center text-sm text-gray-400 mb-6">

@@ -3,8 +3,18 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Github, Apple, Twitter, Instagram, Crown, Zap } from "lucide-react"
+import { 
+  Github as GithubIcon, 
+  Apple as AppleIcon,
+  Crown as CrownIcon,
+  Sword as ChessIcon 
+} from "lucide-react"
+import { GoogleIcon } from "@/components/icons/GoogleIcon"
 import Link from "next/link"
+import firebase from 'firebase/compat/app'
+import 'firebase/compat/auth'
+
+import { auth } from '@/lib/firebase'
 
 const testimonials = [
   {
@@ -56,13 +66,52 @@ export default function SignIn() {
     setTestimonial(testimonials[Math.floor(Math.random() * testimonials.length)])
   }, [])
 
+  const handleSignIn = async (email: string, password: string) => {
+    try {
+      await auth.signInWithEmailAndPassword(email, password)
+      console.log('Sign-in successful!')
+    } catch (error) {
+      console.error('Sign-in error:', error)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider()
+      await auth.signInWithPopup(provider)
+      console.log('Google sign-in successful!')
+    } catch (error) {
+      console.error('Google sign-in error:', error)
+    }
+  }
+
+  const handleGithubSignIn = async () => {
+    try {
+      const provider = new firebase.auth.GithubAuthProvider()
+      await auth.signInWithPopup(provider)
+      console.log('GitHub sign-in successful!')
+    } catch (error) {
+      console.error('GitHub sign-in error:', error)
+    }
+  }
+
+  const handleAppleSignIn = async () => {
+    try {
+      const provider = new firebase.auth.OAuthProvider('apple.com')
+      await auth.signInWithPopup(provider)
+      console.log('Apple sign-in successful!')
+    } catch (error) {
+      console.error('Apple sign-in error:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen w-full bg-[url('/images/signin-background.png')] bg-cover bg-center bg-no-repeat">
       {/* Simplified Header */}
       <header className="bg-zinc-900/80 backdrop-blur-sm">
         <div className="mx-auto max-w-5xl py-4 px-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <Zap className="h-6 w-6 text-blue-500" />
+            <ChessIcon className="h-6 w-6 text-blue-500" />
             <span className="text-xl font-bold text-white">Chess Analyzer</span>
           </Link>
         </div>
@@ -76,7 +125,7 @@ export default function SignIn() {
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0 bg-repeat bg-center" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
             </div>
-            <Crown className="w-16 h-16 mb-6 text-white/90" />
+            <CrownIcon className="w-16 h-16 mb-6 text-white/90" />
             <div className="flex flex-col items-center justify-center">
               <h1 className="text-4xl font-bold mb-4">Sign In</h1>
               <p className="mb-8">
@@ -100,27 +149,52 @@ export default function SignIn() {
               </h2>
 
               <div className="flex justify-center gap-6 mb-8">
-                {['github', 'apple', 'twitter', 'instagram'].map((social) => (
-                  <Button
-                    key={social}
-                    size="icon"
-                    variant="outline"
-                    className="rounded-full w-14 h-14 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
-                  >
-                    {social === 'github' && <Github className="w-10 h-10" />}
-                    {social === 'apple' && <Apple className="w-10 h-10" />}
-                    {social === 'twitter' && <Twitter className="w-10 h-10" />}
-                    {social === 'instagram' && <Instagram className="w-10 h-10" />}
-                    <span className="sr-only">Sign in with {social}</span>
-                  </Button>
-                ))}
+                <Button
+                  onClick={handleGoogleSignIn}
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full w-14 h-14 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
+                >
+                  <GoogleIcon className="w-10 h-10" />
+                  <span className="sr-only">Sign in with Google</span>
+                </Button>
+                <Button
+                  onClick={handleGithubSignIn}
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full w-14 h-14 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
+                >
+                  <GithubIcon className="w-10 h-10" />
+                  <span className="sr-only">Sign in with GitHub</span>
+                </Button>
+                <Button
+                  onClick={handleAppleSignIn}
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full w-14 h-14 transition-all duration-200 hover:bg-blue-600 hover:border-blue-600 focus:ring-2 focus:ring-blue-400"
+                >
+                  <AppleIcon className="w-10 h-10" />
+                  <span className="sr-only">Sign in with Apple</span>
+                </Button>
               </div>
 
               <p className="text-center text-sm text-gray-400 mb-6">
                 or use your email to sign in
               </p>
 
-              <form className="space-y-4">
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const emailInput = e.currentTarget.elements.namedItem('email') as HTMLInputElement | null
+                  const passwordInput = e.currentTarget.elements.namedItem('password') as HTMLInputElement | null
+                  const email = emailInput?.value
+                  const password = passwordInput?.value
+                  if (email && password) {
+                    handleSignIn(email, password)
+                  }
+                }}
+              >
                 <Input
                   className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Email Address"
