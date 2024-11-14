@@ -14,7 +14,6 @@ const firebaseConfig = {
 let auth: firebase.auth.Auth | null = null
 
 if (typeof window !== 'undefined') {
-  // Check if current domain is authorized
   const currentDomain = window.location.hostname
   const isVercelDomain = currentDomain.endsWith('vercel.app')
   const isLocalhost = currentDomain === 'localhost'
@@ -22,42 +21,22 @@ if (typeof window !== 'undefined') {
   if (isVercelDomain || isLocalhost) {
     if (!firebase.apps.length) {
       try {
-        // Debug log for config
-        console.log('Firebase config:', {
-          apiKey: firebaseConfig.apiKey?.slice(0, 5) + '...',
-          authDomain: firebaseConfig.authDomain,
-          projectId: firebaseConfig.projectId,
-          currentDomain
-        })
-
-        // Validate API key before initialization
         if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('undefined')) {
-          throw new Error('Invalid Firebase API key')
+          throw new Error('Invalid configuration')
         }
 
         const app = firebase.initializeApp(firebaseConfig)
         auth = app.auth()
         
-        // Configure auth persistence
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-          .catch((error) => {
-            console.error('Auth persistence error:', error.message)
-          })
+          .catch(() => {/* Handle silently */})
 
-        // Configure auth settings
         auth.settings.appVerificationDisabledForTesting = false
         
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Firebase initialization error:', {
-            message: error.message,
-            config: {
-              apiKeyPresent: !!firebaseConfig.apiKey,
-              authDomainPresent: !!firebaseConfig.authDomain,
-              projectIdPresent: !!firebaseConfig.projectId
-            },
-            domain: currentDomain
-          })
+        // Silent error handling in production
+        if (process.env.NODE_ENV === 'development' && error instanceof Error) {
+          console.error('Initialization error')
         }
       }
     } else {

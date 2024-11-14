@@ -4,18 +4,16 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const response = NextResponse.next()
 
-  // Add security headers
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
   
-  // Simplified Permissions-Policy without experimental features
   response.headers.set(
     'Permissions-Policy',
     'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()'
   )
 
-  // Updated CSP header with correct Pusher domains
   response.headers.set(
     'Content-Security-Policy',
     `
@@ -37,8 +35,7 @@ export function middleware(request: NextRequest) {
         https://*.vercel.app
         https://*.pusher.com 
         wss://*.pusher.com 
-        https://sockjs.pusher.com
-        https://stats.pusher.com;
+        https://sockjs.pusher.com;
       worker-src 'self' blob:;
       frame-ancestors 'self' https://vercel.live;
     `.replace(/\s+/g, ' ').trim()
