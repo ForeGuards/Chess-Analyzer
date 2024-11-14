@@ -12,21 +12,22 @@ export function middleware(request: NextRequest) {
   // Updated Permissions-Policy
   response.headers.set(
     'Permissions-Policy',
-    'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()'
+    'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=(), browsing-topics=(), private-state-token-redemption=(), private-state-token-issuance=()'
   )
 
-  // Updated CSP header
+  // Updated CSP header with all necessary domains
   response.headers.set(
     'Content-Security-Policy',
     `
       default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.firebaseio.com https://*.gstatic.com https://*.google.com https://vercel.live;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.firebaseio.com https://*.gstatic.com https://*.google.com https://vercel.live https://*.vercel.app;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       img-src 'self' data: https: blob:;
       font-src 'self' https://fonts.gstatic.com;
-      frame-src 'self' https://*.firebaseapp.com https://*.firebase.com https://*.google.com;
-      connect-src 'self' https://*.firebase.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://vercel.live wss://*.vercel.live;
+      frame-src 'self' https://*.firebaseapp.com https://*.firebase.com https://*.google.com https://vercel.live;
+      connect-src 'self' https://*.firebase.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com https://vercel.live wss://*.vercel.live https://*.vercel.app;
       worker-src 'self' blob:;
+      frame-ancestors 'self' https://vercel.live;
     `.replace(/\s+/g, ' ').trim()
   )
 

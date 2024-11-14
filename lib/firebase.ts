@@ -21,6 +21,11 @@ if (typeof window !== 'undefined') {
   if (isVercelDomain || isLocalhost) {
     if (!firebase.apps.length) {
       try {
+        // Validate API key before initialization
+        if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('undefined')) {
+          throw new Error('Invalid Firebase API key')
+        }
+
         const app = firebase.initializeApp(firebaseConfig)
         auth = app.auth()
         
