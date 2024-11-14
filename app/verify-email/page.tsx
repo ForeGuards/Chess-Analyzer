@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase'
 import { applyActionCode } from 'firebase/auth'
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { useToast } from "@/components/ui/use-toast"
 
-export default function VerifyEmail() {
+function VerifyEmailContent() {
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -40,9 +40,10 @@ export default function VerifyEmail() {
       } catch (error) {
         console.error('Error verifying email:', error)
         setVerificationStatus('error')
+        const errorMessage = error instanceof Error ? error.message : "Failed to verify email. Please try again."
         toast({
           title: "Error",
-          description: "Failed to verify email. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         })
       }
@@ -80,5 +81,17 @@ export default function VerifyEmail() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   )
 } 
