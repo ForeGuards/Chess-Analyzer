@@ -12,26 +12,51 @@ const firebaseConfig = {
 
 let auth: firebase.auth.Auth | null = null
 
-// Initialize Firebase only once and handle SSR
 if (typeof window !== 'undefined') {
-  if (!firebase.apps.length) {
-    try {
-      const app = firebase.initializeApp(firebaseConfig)
-      auth = app.auth()
-      
-      // Configure auth persistence
-      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      
-      // Set auth settings
-      auth.settings.appVerificationDisabledForTesting = process.env.NODE_ENV === 'development'
-      
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Firebase initialization error:', error.message)
+  // Check if current domain is authorized
+  const currentDomain = window.location.hostname
+  const isVercelDomain = currentDomain.endsWith('vercel.app')
+  const isLocalhost = currentDomain === 'localhost'
+  
+  if (isVercelDomain || isLocalhost) {
+    if (!firebase.apps.length) {
+      try {
+        const app = firebase.initializeApp(firebaseConfig)
+        auth = app.auth()
+        
+        // Configure auth persistence
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+          .catch((error) => {
+            console.error('Auth persistence error:', error.message)
+          })
+
+        // Configure auth settings
+        auth.settings.appVerificationDisabledForTesting = false
+        
+        // Add auth state observer
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            // User is signed in
+            localStorage.setItem('authUser', JSON.stringify({
+              uid: user.uid,
+              email: user.email
+            }))
+          } else {
+            // User is signed out
+            localStorage.removeItem('authUser')
+          }
+        })
+
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Firebase initialization error:', error.message)
+        }
       }
+    } else {
+      auth = firebase.auth()
     }
   } else {
-    auth = firebase.auth()
+    console.error('Unauthorized domain:', currentDomain)
   }
 }
 
