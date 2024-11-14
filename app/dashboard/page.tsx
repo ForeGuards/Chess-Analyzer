@@ -373,12 +373,12 @@ function DashboardContent() {
         
         <main className="flex-1 overflow-x-hidden">
           <div className="px-4 py-6 space-y-6 max-w-[1920px] mx-auto min-w-0 w-full">
-            <div className="w-full text-center mb-8 max-w-full">
+            <div className="w-full text-center mb-6 max-w-full">
               <h1 className="text-3xl font-bold mb-2 break-words">Welcome, Blitzmystic!</h1>
               <p className="text-lg text-muted-foreground break-words">Here&apos;s your comprehensive chess performance overview</p>
             </div>
             
-            <div className="w-full flex flex-col sm:flex-row justify-between gap-4 mb-6 min-w-0">
+            <div className="w-full flex flex-col sm:flex-row justify-between gap-4 mb-6">
               <div className="flex-1">
                 <Label htmlFor="start-date" className="text-sm font-medium mb-1 block">
                   Start Date
@@ -441,7 +441,7 @@ function DashboardContent() {
               </Card>
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Rating History</CardTitle>
@@ -491,12 +491,7 @@ function DashboardContent() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="rounded-lg border p-4">
-                        <h3 className="text-base font-medium mb-2">Daily Tip</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Check here for daily chess tips and strategies
-                        </p>
-                      </div>
+                        Check here for daily chess tips and strategies
                     </div>
                   </CardContent>
                 </Card>
