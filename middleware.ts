@@ -7,8 +7,10 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
+
   response.headers.delete('Cross-Origin-Embedder-Policy')
+  response.headers.delete('Cross-Origin-Resource-Policy')
+  response.headers.delete('Cross-Origin-Opener-Policy')
 
   response.headers.set(
     'Content-Security-Policy',
@@ -33,6 +35,9 @@ export function middleware(request: NextRequest) {
         wss://*.pusher.com 
         https://sockjs.pusher.com;
       worker-src 'self' blob:;
+      form-action 'self';
+      base-uri 'self';
+      frame-ancestors 'none';
     `.replace(/\s+/g, ' ').trim()
   )
 
