@@ -70,6 +70,8 @@ import {
 } from "@/components/ui/sidebar"
 
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { auth } from '@/lib/firebase'
+import { useRouter } from 'next/navigation'
 
 function ThemeToggle() {
   const { setTheme } = useTheme()
@@ -139,6 +141,7 @@ function OverallStatistics() {
 
 function DashboardContent() {
   const { open, toggleSidebar } = useSidebar()
+  const router = useRouter()
 
   return (
     <div className="flex min-h-screen">
@@ -289,7 +292,19 @@ function DashboardContent() {
                 Share Profile
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem 
+                className="text-red-600 focus:bg-red-100 dark:focus:bg-red-900/50"
+                onClick={async () => {
+                  try {
+                    if (auth) {
+                      await auth.signOut()
+                      router.replace('/')
+                    }
+                  } catch (error) {
+                    console.error('Logout error:', error)
+                  }
+                }}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>

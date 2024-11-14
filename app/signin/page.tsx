@@ -15,7 +15,7 @@ import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import { useRouter } from 'next/navigation'
 
-import { auth } from '@/lib/firebase'
+import { auth, signInWithProvider } from '@/lib/firebase'
 
 const testimonials = [
   {
@@ -63,52 +63,133 @@ const testimonials = [
 export default function SignIn() {
   const router = useRouter()
   const [testimonial, setTestimonial] = useState(testimonials[0])
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true)
 
   useEffect(() => {
     setTestimonial(testimonials[Math.floor(Math.random() * testimonials.length)])
   }, [])
 
+  useEffect(() => {
+    if (!auth) {
+      setIsProcessingRedirect(false)
+      return
+    }
+
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        console.log('User authenticated, redirecting to dashboard')
+        await router.replace('/dashboard')
+        return
+      }
+      
+      setIsProcessingRedirect(false)
+    })
+
+    return () => unsubscribe()
+  }, [router])
+
   const handleSignIn = async (email: string, password: string) => {
+    if (!auth) {
+      console.error('Auth not initialized')
+      return
+    }
     try {
+      setIsProcessingRedirect(true)
       await auth.signInWithEmailAndPassword(email, password)
-      console.log('Sign-in successful!')
-      router.push('/dashboard')
-    } catch (error) {
-      console.error('Sign-in error:', error)
+      await router.replace('/dashboard')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Sign-in error:', {
+          code: (error as { code?: string }).code,
+          message: error.message,
+          domain: window.location.hostname
+        })
+      }
+      setIsProcessingRedirect(false)
     }
   }
 
   const handleGoogleSignIn = async () => {
+    if (!auth) {
+      console.error('Auth not initialized')
+      return
+    }
     try {
+      setIsProcessingRedirect(true)
       const provider = new firebase.auth.GoogleAuthProvider()
-      await auth.signInWithPopup(provider)
-      console.log('Google sign-in successful!')
-      router.push('/dashboard')
-    } catch (error) {
-      console.error('Google sign-in error:', error)
+      provider.addScope('profile')
+      provider.addScope('email')
+      
+      const result = await auth.signInWithPopup(provider)
+      if (result.user) {
+        await router.replace('/dashboard')
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Google sign-in error:', {
+          code: (error as { code?: string }).code,
+          message: error.message,
+          domain: window.location.hostname
+        })
+      }
+      setIsProcessingRedirect(false)
     }
   }
 
   const handleGithubSignIn = async () => {
+    if (!auth) {
+      console.error('Auth not initialized')
+      return
+    }
     try {
+      setIsProcessingRedirect(true)
       const provider = new firebase.auth.GithubAuthProvider()
-      await auth.signInWithPopup(provider)
-      console.log('GitHub sign-in successful!')
-      router.push('/dashboard')
-    } catch (error) {
-      console.error('GitHub sign-in error:', error)
+      const result = await auth.signInWithPopup(provider)
+      if (result.user) {
+        await router.replace('/dashboard')
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('GitHub sign-in error:', {
+          code: (error as { code?: string }).code,
+          message: error.message,
+          domain: window.location.hostname
+        })
+      }
+      setIsProcessingRedirect(false)
     }
   }
 
   const handleAppleSignIn = async () => {
-    try {
-      const provider = new firebase.auth.OAuthProvider('apple.com')
-      await auth.signInWithPopup(provider)
-      console.log('Apple sign-in successful!')
-      router.push('/dashboard')
-    } catch (error) {
-      console.error('Apple sign-in error:', error)
+    if (!auth) {
+      console.error('Auth not initialized')
+      return
     }
+    try {
+      setIsProcessingRedirect(true)
+      const provider = new firebase.auth.OAuthProvider('apple.com')
+      const result = await auth.signInWithPopup(provider)
+      if (result.user) {
+        await router.replace('/dashboard')
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Apple sign-in error:', {
+          code: (error as { code?: string }).code,
+          message: error.message,
+          domain: window.location.hostname
+        })
+      }
+      setIsProcessingRedirect(false)
+    }
+  }
+
+  if (isProcessingRedirect) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
   return (
