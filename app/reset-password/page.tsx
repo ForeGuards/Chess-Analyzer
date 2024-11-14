@@ -1,208 +1,103 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { auth } from '@/lib/firebase'
+import { confirmPasswordReset } from 'firebase/auth'
+import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { 
-  Sword as ChessIcon,
-  ArrowLeft,
-  Eye,
-  EyeOff
-} from "lucide-react"
-import Link from "next/link"
-import { auth } from '@/lib/firebase'
-import { toast } from 'react-hot-toast'
-import { useSearchParams, useRouter } from 'next/navigation'
-import type { FirebaseError } from 'firebase/app'
 
-function ResetPasswordForm() {
-  const [newPassword, setNewPassword] = useState('')
+export default function ResetPassword() {
+  const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [oobCode, setOobCode] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const router = useRouter()
-
-  useEffect(() => {
-    const code = searchParams.get('oobCode')
-    if (code) {
-      setOobCode(code)
-    } else {
-      toast.error('Invalid or expired reset link')
-      router.push('/signin')
-    }
-  }, [searchParams, router])
+  const { toast } = useToast()
+  
+  const oobCode = searchParams.get('oobCode')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
-    if (!auth) {
-      toast.error('Authentication not initialized')
+    if (!oobCode || !auth) {
+      toast({
+        title: "Error",
+        description: "Invalid reset link or authentication not initialized",
+        variant: "destructive",
+      })
+      router.push('/forgot-password')
       return
     }
 
-    if (!oobCode) {
-      toast.error('Invalid reset code')
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      })
       return
     }
-
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match')
-      return
-    }
-
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters')
-      return
-    }
-
-    setIsLoading(true)
-    const loadingToast = toast.loading('Resetting password...')
 
     try {
-      await auth.confirmPasswordReset(oobCode, newPassword)
+      setIsLoading(true)
+      await confirmPasswordReset(auth, oobCode, password)
       
-      toast.success('Password reset successful! Please sign in with your new password.', {
-        id: loadingToast,
-        duration: 5000
+      toast({
+        title: "Success",
+        description: "Password has been reset successfully!",
       })
       
-      setTimeout(() => {
-        router.push('/signin')
-      }, 2000)
-      
-    } catch (error: unknown) {
-      let errorMessage = 'Failed to reset password. Please try again.'
-      
-      if (error && typeof error === 'object' && 'code' in error) {
-        const firebaseError = error as FirebaseError
-        switch (firebaseError.code) {
-          case 'auth/expired-action-code':
-            errorMessage = 'Reset link has expired. Please request a new one.'
-            break
-          case 'auth/invalid-action-code':
-            errorMessage = 'Invalid reset link. Please request a new one.'
-            break
-          case 'auth/weak-password':
-            errorMessage = 'Password is too weak. Please choose a stronger password.'
-            break
-        }
+      router.push('/signin')
+    } catch (error: any) {
+      console.error(error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reset password. Please try again.",
+        variant: "destructive",
+      })
+      if (error.code === 'auth/invalid-action-code') {
+        router.push('/forgot-password')
       }
-      
-      toast.error(errorMessage, {
-        id: loadingToast,
-      })
-      
-      console.error('Password reset error:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen w-full bg-[url('/images/signin-background.png')] bg-cover bg-center bg-no-repeat">
-      <header className="bg-zinc-900/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl py-4 px-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <ChessIcon className="h-6 w-6 text-blue-500" />
-            <span className="text-xl font-bold text-white">Chess Analyzer</span>
-          </Link>
+    <div className="container flex items-center justify-center min-h-screen py-12">
+      <div className="w-full max-w-md space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Reset Password</h1>
+          <p className="text-gray-500">Enter your new password below</p>
         </div>
-      </header>
-
-      <div className="min-h-[calc(100vh-3.5rem)] bg-black/50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-zinc-950 rounded-lg p-8 shadow-2xl">
-            <div className="mb-6">
-              <Link 
-                href="/signin" 
-                className="inline-flex items-center text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Sign In
-              </Link>
-            </div>
-            
-            <h1 className="text-2xl font-bold text-white mb-2">
-              Reset Your Password
-            </h1>
-            <p className="text-gray-400 mb-6">
-              Please enter your new password below.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative">
-                <Input
-                  className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 pr-10"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="New Password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              
-              <div className="relative">
-                <Input
-                  className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 pr-10"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Confirm New Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-
-              <Button 
-                type="submit"
-                className="w-full bg-[#4338ca] hover:bg-[#4338ca]/90 transition-colors duration-300"
-                disabled={isLoading}
-              >
-                Reset Password
-              </Button>
-            </form>
-          </div>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="password"
+            placeholder="New Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <Input
+            type="password"
+            placeholder="Confirm New Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Resetting...' : 'Reset Password'}
+          </Button>
+        </form>
       </div>
     </div>
-  )
-}
-
-export default function ResetPassword() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      </div>
-    }>
-      <ResetPasswordForm />
-    </Suspense>
   )
 } 

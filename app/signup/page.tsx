@@ -15,6 +15,17 @@ import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import { auth } from '@/lib/firebase'
 import { useRouter } from 'next/navigation'
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
+import { z } from 'zod'
+import { useToast } from "@/components/ui/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import type { Toast } from '@/lib/utils'
+
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  confirmPassword: z.string().min(8),
+})
 
 export default function SignUp() {
   const router = useRouter()
@@ -28,6 +39,8 @@ export default function SignUp() {
     password: '',
     confirmPassword: '',
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -36,51 +49,51 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const { email, password, confirmPassword } = formData
-    let isValid = true
-    const newErrors = { email: '', password: '', confirmPassword: '' }
-
-    // Email validation
-    if (!email) {
-      newErrors.email = 'Email is required'
-      isValid = false
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Invalid email address'
-      isValid = false
-    }
-
-    // Password validation
-    if (!password) {
-      newErrors.password = 'Password is required'
-      isValid = false
-    } else if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters long'
-      isValid = false
-    }
-
-    // Confirm Password validation
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Confirm Password is required'
-      isValid = false
-    } else if (confirmPassword !== password) {
-      newErrors.confirmPassword = 'Passwords do not match'
-      isValid = false
-    }
-
-    if (isValid) {
-      try {
-        if (!auth) {
-          throw new Error('Auth not initialized')
-        }
-        await auth.createUserWithEmailAndPassword(email, password)
-        await router.replace('/dashboard')
-      } catch (error) {
-        if (error instanceof Error) {
-          setErrors({ ...errors, email: error.message })
-        }
+    
+    try {
+      setIsLoading(true)
+      
+      if (!auth) {
+        throw new Error('Auth not initialized')
       }
-    } else {
-      setErrors(newErrors)
+
+      // Validate passwords match
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Error",
+          description: "Passwords do not match",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      )
+      
+      // Send verification email with the new action URL
+      await sendEmailVerification(userCredential.user, {
+        url: `${window.location.origin}/auth/action?mode=verifyEmail`,
+        handleCodeInApp: true,
+      })
+
+      toast({
+        title: "Success",
+        description: "Account created! Please check your email to verify your account.",
+      })
+
+      router.push('/signin')
+    } catch (error: any) {
+      console.error(error)
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -246,6 +259,7 @@ export default function SignUp() {
           </div>
         </div>
       </div>
+      <Toaster />
     </div>
   )
 }

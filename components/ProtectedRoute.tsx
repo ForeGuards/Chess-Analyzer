@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase'
 import type { User as FirebaseUser } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
+import { useToast } from "@/components/ui/use-toast"
+import type { Toast } from '@/lib/utils'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<FirebaseUser | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!auth) {
@@ -17,31 +20,26 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       return
     }
 
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        setUser(authUser as FirebaseUser)
-        setLoading(false)
-      } else {
-        setUser(null)
-        setLoading(false)
-        router.replace('/signin')
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push('/signin')
+      } else if (!user.emailVerified && !user.providerData[0]?.providerId.includes('google')) {
+        router.push('/signin')
+        toast({
+          title: "Email not verified",
+          description: "Please verify your email before accessing this page.",
+          variant: "destructive",
+        })
       }
-    }, (error: Error) => {
-      console.error('Auth state error:', {
-        error: error.message,
-        errorName: error.name,
-        domain: window.location.hostname
-      })
       setLoading(false)
-      router.replace('/signin')
     })
 
     return () => unsubscribe()
-  }, [router])
+  }, [router, toast])
 
-  if (loading || !user) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     )
