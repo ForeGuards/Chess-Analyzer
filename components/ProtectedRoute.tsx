@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase'
-import type { User as FirebaseUser } from 'firebase/auth'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { useToast } from "@/components/ui/use-toast"
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -19,18 +18,33 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       return
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push('/signin')
-      } else if (!user.emailVerified && !user.providerData[0]?.providerId.includes('google')) {
-        router.push('/signin')
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (!user) {
+          router.push('/signin')
+        } else if (!user.emailVerified && !user.providerData[0]?.providerId.includes('google')) {
+          // Sign out the user if email is not verified
+          if (auth) {
+            await signOut(auth)
+            toast({
+              title: "Email not verified",
+              description: "Please verify your email before accessing this page. Check your inbox for the verification link.",
+              variant: "destructive",
+            })
+            router.push('/signin')
+          }
+        }
+      } catch (error) {
+        console.error('Auth error:', error)
         toast({
-          title: "Email not verified",
-          description: "Please verify your email before accessing this page.",
+          title: "Authentication Error",
+          description: "Please try signing in again.",
           variant: "destructive",
         })
+        router.push('/signin')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => unsubscribe()

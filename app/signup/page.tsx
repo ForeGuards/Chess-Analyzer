@@ -15,7 +15,7 @@ import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import { auth } from '@/lib/firebase'
 import { useRouter } from 'next/navigation'
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
+import { createUserWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth'
 import { z } from 'zod'
 import { useToast } from "@/components/ui/use-toast"
 
@@ -77,9 +77,12 @@ export default function SignUp() {
         handleCodeInApp: true,
       })
 
+      // Sign out the user immediately after sending verification email
+      await signOut(auth)
+
       toast({
         title: "Success",
-        description: "Account created! Please check your email to verify your account.",
+        description: "Account created! Please check your email to verify your account before signing in.",
       })
 
       router.push('/signin')
