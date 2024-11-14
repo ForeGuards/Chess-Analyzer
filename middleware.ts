@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
       style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://vercel.live https://assets.vercel.com;
       img-src 'self' data: blob: https: https://vercel.live https://vercel.com https://lh3.googleusercontent.com;
       font-src 'self' https://fonts.gstatic.com https://vercel.live https://assets.vercel.com;
-      frame-src 'self' https://*.firebaseapp.com https://*.firebase.com https://*.google.com https://vercel.live https://accounts.google.com;
+      frame-src 'self' https://*.firebaseapp.com https://*.firebase.com https://*.google.com https://vercel.live https://accounts.google.com https://chess-analyzer-cbda1.firebaseapp.com;
       connect-src 'self' 
         https://*.firebase.com 
         https://*.firebaseio.com 

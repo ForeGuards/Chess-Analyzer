@@ -25,16 +25,16 @@ if (typeof window !== 'undefined') {
           throw new Error('Invalid configuration')
         }
 
-        const app = firebase.initializeApp(firebaseConfig)
-        auth = app.auth()
+        const app = firebase.initializeApp({
+          ...firebaseConfig,
+          authDomain: 'chess-analyzer-cbda1.firebaseapp.com'
+        })
         
+        auth = app.auth()
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
           .catch(() => {/* Handle silently */})
 
-        auth.settings.appVerificationDisabledForTesting = false
-        
       } catch (error: unknown) {
-        // Silent error handling in production
         if (process.env.NODE_ENV === 'development' && error instanceof Error) {
           console.error('Initialization error')
         }

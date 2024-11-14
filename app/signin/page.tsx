@@ -75,14 +75,27 @@ export default function SignIn() {
       return
     }
 
+    const handleRedirectResult = async () => {
+      if (!auth) return
+      
+      try {
+        const result = await auth.getRedirectResult()
+        if (result?.user) {
+          await router.replace('/dashboard')
+        }
+      } catch (error) {
+        setIsProcessingRedirect(false)
+      }
+    }
+
+    handleRedirectResult()
+
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        console.log('User authenticated, redirecting to dashboard')
         await router.replace('/dashboard')
-        return
+      } else {
+        setIsProcessingRedirect(false)
       }
-      
-      setIsProcessingRedirect(false)
     })
 
     return () => unsubscribe()
@@ -120,19 +133,11 @@ export default function SignIn() {
       provider.addScope('profile')
       provider.addScope('email')
       
-      const result = await auth.signInWithPopup(provider)
-      if (result.user) {
-        await router.replace('/dashboard')
-      }
+      await auth.signInWithRedirect(provider)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error('Google sign-in error:', {
-          code: (error as { code?: string }).code,
-          message: error.message,
-          domain: window.location.hostname
-        })
+        setIsProcessingRedirect(false)
       }
-      setIsProcessingRedirect(false)
     }
   }
 
