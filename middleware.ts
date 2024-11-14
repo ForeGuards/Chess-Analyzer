@@ -2,49 +2,36 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Get the origin from the request headers
-  const origin = request.headers.get('origin') || ''
-  
-  // Define allowed origins
-  const allowedOrigins = [
-    'https://chess-analyzer-two.vercel.app',
-    'https://www.chess-analyzer-two.vercel.app',
-    'http://localhost:3000'
-  ]
-
-  // Check if the origin is allowed
-  const isAllowedOrigin = allowedOrigins.includes(origin)
-
-  // Create the response
   const response = NextResponse.next()
 
-  // Set CORS headers if origin is allowed
-  if (isAllowedOrigin) {
-    response.headers.set('Access-Control-Allow-Origin', origin)
-  } else {
-    response.headers.set('Access-Control-Allow-Origin', allowedOrigins[0])
-  }
-
-  // Set other CORS headers
-  response.headers.set('Access-Control-Allow-Credentials', 'true')
+  // Add security headers
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, DELETE, OPTIONS'
+    'Permissions-Policy',
+    'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()'
   )
+
+  // Set CSP header
   response.headers.set(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'Content-Security-Policy',
+    `
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://*.firebaseio.com https://www.gstatic.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+      font-src 'self';
+      frame-src 'self' https://chess-analyzer-two.vercel.app https://*.firebaseapp.com https://*.firebase.com;
+      connect-src 'self' https://*.firebase.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://*.googleapis.com;
+    `.replace(/\s+/g, ' ').trim()
   )
 
   return response
 }
 
-// Configure which paths should be handled by the middleware
 export const config = {
   matcher: [
-    '/api/:path*',
-    '/signin',
-    '/signup',
-    '/dashboard/:path*'
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ]
 } 

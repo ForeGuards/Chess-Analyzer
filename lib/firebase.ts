@@ -19,50 +19,19 @@ if (typeof window !== 'undefined') {
       const app = firebase.initializeApp(firebaseConfig)
       auth = app.auth()
       
-      // Configure auth persistence and settings
+      // Configure auth persistence
       auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       
-      // Set custom auth settings
-      auth.settings.appVerificationDisabledForTesting = false
-      
-      // Add auth state listener with improved error handling
-      auth.onAuthStateChanged((user) => {
-        // Authentication state changed
-      }, (error) => {
-        // Auth error occurred
-      })
+      // Set auth settings
+      auth.settings.appVerificationDisabledForTesting = process.env.NODE_ENV === 'development'
       
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error('Firebase initialization error:', {
-          message: error.message,
-          stack: error.stack || 'No stack trace',
-          env: process.env.NODE_ENV
-        })
+        console.error('Firebase initialization error:', error.message)
       }
     }
   } else {
     auth = firebase.auth()
-  }
-}
-
-// Modified sign-in utility to handle COOP
-export const signInWithProvider = async (provider: firebase.auth.AuthProvider) => {
-  if (!auth) throw new Error('Auth not initialized')
-  
-  try {
-    // Use signInWithRedirect instead of popup for better cross-origin support
-    await auth.signInWithRedirect(provider)
-    return null // Return will happen after redirect
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Sign-in error:', {
-        code: (error as { code?: string }).code,
-        message: error.message,
-        domain: window.location.hostname
-      })
-    }
-    throw error
   }
 }
 
