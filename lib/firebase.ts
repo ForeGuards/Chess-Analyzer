@@ -4,6 +4,7 @@ import 'firebase/compat/auth'
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
@@ -21,16 +22,20 @@ if (typeof window !== 'undefined') {
   if (isVercelDomain || isLocalhost) {
     if (!firebase.apps.length) {
       try {
+        // Debug log for config
+        console.log('Firebase config:', {
+          apiKey: firebaseConfig.apiKey?.slice(0, 5) + '...',
+          authDomain: firebaseConfig.authDomain,
+          projectId: firebaseConfig.projectId,
+          currentDomain
+        })
+
         // Validate API key before initialization
         if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('undefined')) {
           throw new Error('Invalid Firebase API key')
         }
 
-        const app = firebase.initializeApp({
-          ...firebaseConfig,
-          authDomain: isLocalhost ? 'localhost' : firebaseConfig.authDomain
-        })
-        
+        const app = firebase.initializeApp(firebaseConfig)
         auth = app.auth()
         
         // Configure auth persistence
@@ -44,7 +49,15 @@ if (typeof window !== 'undefined') {
         
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.error('Firebase initialization error:', error.message)
+          console.error('Firebase initialization error:', {
+            message: error.message,
+            config: {
+              apiKeyPresent: !!firebaseConfig.apiKey,
+              authDomainPresent: !!firebaseConfig.authDomain,
+              projectIdPresent: !!firebaseConfig.projectId
+            },
+            domain: currentDomain
+          })
         }
       }
     } else {
