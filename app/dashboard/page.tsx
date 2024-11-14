@@ -5,9 +5,7 @@ import { cn } from "@/lib/utils"
 import { 
   BarChart3, 
   ChevronDown, 
-  Flag, 
   LogOut, 
-  MessageSquare, 
   Share2, 
   Trophy, 
   Users2, 
@@ -17,17 +15,10 @@ import {
   Library, 
   User, 
   Settings, 
-  Menu, 
-  HelpCircle, 
-  CreditCard, 
-  Calendar, 
-  Home, 
-  Download, 
-  Users, 
+  Menu,
   Compass, 
   Newspaper, 
-  Layout, 
-  ArrowUpRight 
+  Layout
 } from 'lucide-react'
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -35,7 +26,6 @@ import { ThemeProvider } from "next-themes"
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 // Fix Avatar imports
-import type { AvatarProps } from "@radix-ui/react-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Rest of the imports
@@ -45,8 +35,8 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle, 
-  CardDescription, 
-  CardFooter 
+  // Remove: CardDescription, 
+  // Remove: CardFooter 
 } from "@/components/ui/card"
 import {
   DropdownMenu,
@@ -74,7 +64,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
+  // Remove: SidebarMenuButton,
   SidebarProvider,
   useSidebar,
 } from "@/components/ui/sidebar"
@@ -149,7 +139,6 @@ function OverallStatistics() {
 
 function DashboardContent() {
   const { open, toggleSidebar } = useSidebar()
-  const isMobile = useMediaQuery("(max-width: 768px)")
 
   return (
     <div className="flex min-h-screen">
@@ -386,7 +375,7 @@ function DashboardContent() {
           <div className="px-4 py-6 space-y-6 max-w-[1920px] mx-auto min-w-0 w-full">
             <div className="w-full text-center mb-8 max-w-full">
               <h1 className="text-3xl font-bold mb-2 break-words">Welcome, Blitzmystic!</h1>
-              <p className="text-lg text-muted-foreground break-words">Here's your comprehensive chess performance overview</p>
+              <p className="text-lg text-muted-foreground break-words">Here&apos;s your comprehensive chess performance overview</p>
             </div>
             
             <div className="w-full flex flex-col sm:flex-row justify-between gap-4 mb-6 min-w-0">

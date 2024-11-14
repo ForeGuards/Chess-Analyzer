@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 interface SidebarContextValue {
   open: boolean
   toggleSidebar: () => void
+  collapsible?: 'icon' | 'full' | false
 }
 
 const SidebarContext = React.createContext<SidebarContextValue>({
@@ -48,7 +49,7 @@ export function SidebarProvider({
 }
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  collapsible?: "icon" | "full"
+  collapsible?: 'icon' | 'full' | false
 }
 
 export function Sidebar({
