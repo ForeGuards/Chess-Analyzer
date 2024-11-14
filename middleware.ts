@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+  response.headers.set('Cross-Origin-Opener-Policy', 'unsafe-none')
   
   response.headers.set(
     'Permissions-Policy',
@@ -37,7 +37,6 @@ export function middleware(request: NextRequest) {
         wss://*.pusher.com 
         https://sockjs.pusher.com;
       worker-src 'self' blob:;
-      frame-ancestors 'self' https://vercel.live;
     `.replace(/\s+/g, ' ').trim()
   )
 
