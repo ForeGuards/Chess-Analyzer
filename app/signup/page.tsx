@@ -14,8 +14,10 @@ import Link from "next/link"
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import { auth } from '@/lib/firebase'
+import { useRouter } from 'next/navigation'
 
 export default function SignUp() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -69,6 +71,7 @@ export default function SignUp() {
       try {
         await auth.createUserWithEmailAndPassword(email, password)
         console.log('Sign-up successful!')
+        router.push('/dashboard')
       } catch (error) {
         console.error('Sign-up error:', error)
       }
@@ -82,6 +85,7 @@ export default function SignUp() {
       const provider = new firebase.auth.GoogleAuthProvider()
       await auth.signInWithPopup(provider)
       console.log('Google sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Google sign-in error:', error)
     }
@@ -92,6 +96,7 @@ export default function SignUp() {
       const provider = new firebase.auth.GithubAuthProvider()
       await auth.signInWithPopup(provider)
       console.log('GitHub sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('GitHub sign-in error:', error)
     }
@@ -102,6 +107,7 @@ export default function SignUp() {
       const provider = new firebase.auth.OAuthProvider('apple.com')
       await auth.signInWithPopup(provider)
       console.log('Apple sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Apple sign-in error:', error)
     }

@@ -13,6 +13,7 @@ import { GoogleIcon } from "@/components/icons/GoogleIcon"
 import Link from "next/link"
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
+import { useRouter } from 'next/navigation'
 
 import { auth } from '@/lib/firebase'
 
@@ -60,6 +61,7 @@ const testimonials = [
 ]
 
 export default function SignIn() {
+  const router = useRouter()
   const [testimonial, setTestimonial] = useState(testimonials[0])
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function SignIn() {
     try {
       await auth.signInWithEmailAndPassword(email, password)
       console.log('Sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Sign-in error:', error)
     }
@@ -80,6 +83,7 @@ export default function SignIn() {
       const provider = new firebase.auth.GoogleAuthProvider()
       await auth.signInWithPopup(provider)
       console.log('Google sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Google sign-in error:', error)
     }
@@ -90,6 +94,7 @@ export default function SignIn() {
       const provider = new firebase.auth.GithubAuthProvider()
       await auth.signInWithPopup(provider)
       console.log('GitHub sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('GitHub sign-in error:', error)
     }
@@ -100,6 +105,7 @@ export default function SignIn() {
       const provider = new firebase.auth.OAuthProvider('apple.com')
       await auth.signInWithPopup(provider)
       console.log('Apple sign-in successful!')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Apple sign-in error:', error)
     }
