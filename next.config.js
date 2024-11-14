@@ -25,7 +25,9 @@ const nextConfig = {
     domains: ['firebasestorage.googleapis.com', 'lh3.googleusercontent.com'],
   },
   experimental: {
-    serverActions: true,
+    serverActions: {
+      bodySizeLimit: '2mb'
+    }
   }
 }
 
