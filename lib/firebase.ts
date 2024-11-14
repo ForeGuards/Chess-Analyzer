@@ -26,7 +26,11 @@ if (typeof window !== 'undefined') {
           throw new Error('Invalid Firebase API key')
         }
 
-        const app = firebase.initializeApp(firebaseConfig)
+        const app = firebase.initializeApp({
+          ...firebaseConfig,
+          authDomain: isLocalhost ? 'localhost' : firebaseConfig.authDomain
+        })
+        
         auth = app.auth()
         
         // Configure auth persistence
@@ -38,20 +42,6 @@ if (typeof window !== 'undefined') {
         // Configure auth settings
         auth.settings.appVerificationDisabledForTesting = false
         
-        // Add auth state observer
-        auth.onAuthStateChanged((user) => {
-          if (user) {
-            // User is signed in
-            localStorage.setItem('authUser', JSON.stringify({
-              uid: user.uid,
-              email: user.email
-            }))
-          } else {
-            // User is signed out
-            localStorage.removeItem('authUser')
-          }
-        })
-
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error('Firebase initialization error:', error.message)
@@ -60,8 +50,6 @@ if (typeof window !== 'undefined') {
     } else {
       auth = firebase.auth()
     }
-  } else {
-    console.error('Unauthorized domain:', currentDomain)
   }
 }
 
