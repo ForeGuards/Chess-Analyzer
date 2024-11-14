@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase'
-import { applyActionCode, verifyPasswordResetCode, confirmPasswordReset } from 'firebase/auth'
+import { applyActionCode, verifyPasswordResetCode } from 'firebase/auth'
 import { useToast } from "@/components/ui/use-toast"
 
-export default function AuthAction() {
+function AuthActionHandler() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -39,10 +39,8 @@ export default function AuthAction() {
             break
 
           case 'resetPassword':
-            // Verify the password reset code is valid
             const email = await verifyPasswordResetCode(auth, oobCode)
             if (email) {
-              // Redirect to reset password page with the oobCode
               router.push(`/reset-password?oobCode=${oobCode}`)
             } else {
               throw new Error('Invalid reset code')
@@ -53,15 +51,15 @@ export default function AuthAction() {
             throw new Error('Invalid action mode')
         }
         setStatus('success')
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error handling auth action:', error)
         setStatus('error')
+        const errorMessage = error instanceof Error ? error.message : "Failed to process your request. Please try again."
         toast({
           title: "Error",
-          description: error.message || "Failed to process your request. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         })
-        // Redirect to appropriate error page based on mode
         router.push(mode === 'verifyEmail' ? '/signup' : '/forgot-password')
       }
     }
@@ -80,5 +78,17 @@ export default function AuthAction() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function AuthAction() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      </div>
+    }>
+      <AuthActionHandler />
+    </Suspense>
   )
 } 

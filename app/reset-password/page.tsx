@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase'
 import { confirmPasswordReset } from 'firebase/auth'
@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -50,14 +50,15 @@ export default function ResetPassword() {
       })
       
       router.push('/signin')
-    } catch (error: any) {
+    } catch (error) {
       console.error(error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to reset password. Please try again."
       toast({
         title: "Error",
-        description: error.message || "Failed to reset password. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
-      if (error.code === 'auth/invalid-action-code') {
+      if (error instanceof Error && 'code' in error && error.code === 'auth/invalid-action-code') {
         router.push('/forgot-password')
       }
     } finally {
@@ -99,5 +100,17 @@ export default function ResetPassword() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   )
 } 
