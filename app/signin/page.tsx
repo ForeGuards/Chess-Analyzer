@@ -14,6 +14,7 @@ import Link from "next/link"
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
 import { auth } from '@/lib/firebase'
 
@@ -97,19 +98,41 @@ export default function SignIn() {
       console.error('Auth not initialized')
       return
     }
+    
     try {
       setIsProcessingRedirect(true)
-      await auth.signInWithEmailAndPassword(email, password)
-      await router.replace('/dashboard')
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Sign-in error:', {
-          code: (error as { code?: string }).code,
-          message: error.message,
-          domain: window.location.hostname
+      
+      // Add loading state feedback
+      const loadingToast = toast.loading('Signing in...')
+      
+      const userCredential = await auth.signInWithEmailAndPassword(email, password)
+      
+      if (userCredential.user) {
+        toast.success('Successfully signed in!', {
+          id: loadingToast,
         })
+        await router.replace('/dashboard')
       }
+    } catch (error: any) {
       setIsProcessingRedirect(false)
+      
+      // Improved error handling with user feedback
+      let errorMessage = 'Failed to sign in. Please try again.'
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email.'
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid password. Please try again.'
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.'
+      }
+      
+      toast.error(errorMessage)
+      console.error('Sign-in error:', {
+        code: error.code,
+        message: error.message,
+        domain: window.location.hostname
+      })
     }
   }
 
@@ -177,6 +200,21 @@ export default function SignIn() {
       }
       setIsProcessingRedirect(false)
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    const form = e.currentTarget
+    const emailInput = form.elements.namedItem('email') as HTMLInputElement
+    const passwordInput = form.elements.namedItem('password') as HTMLInputElement
+    
+    if (!emailInput?.value || !passwordInput?.value) {
+      toast.error('Please fill in all fields')
+      return
+    }
+    
+    await handleSignIn(emailInput.value, passwordInput.value)
   }
 
   if (isProcessingRedirect) {
@@ -266,30 +304,28 @@ export default function SignIn() {
 
               <form
                 className="space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const emailInput = e.currentTarget.elements.namedItem('email') as HTMLInputElement | null
-                  const passwordInput = e.currentTarget.elements.namedItem('password') as HTMLInputElement | null
-                  const email = emailInput?.value
-                  const password = passwordInput?.value
-                  if (email && password) {
-                    handleSignIn(email, password)
-                  }
-                }}
+                onSubmit={handleSubmit}
               >
                 <Input
                   className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Email Address"
                   type="email"
+                  name="email"
+                  id="email"
                   required
                 />
                 <Input
                   className="bg-zinc-800 border-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Password"
                   type="password"
+                  name="password"
+                  id="password"
                   required
                 />
-                <Button className="w-full bg-[#4338ca] hover:bg-[#4338ca]/90 transition-colors duration-300">
+                <Button 
+                  type="submit"
+                  className="w-full bg-[#4338ca] hover:bg-[#4338ca]/90 transition-colors duration-300"
+                >
                   SIGN IN
                 </Button>
               </form>
