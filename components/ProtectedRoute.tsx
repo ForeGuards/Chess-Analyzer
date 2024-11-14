@@ -6,7 +6,6 @@ import { auth } from '@/lib/firebase'
 import type { User as FirebaseUser } from 'firebase/auth'
 import { onAuthStateChanged } from 'firebase/auth'
 import { useToast } from "@/components/ui/use-toast"
-import type { Toast } from '@/lib/utils'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter()

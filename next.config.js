@@ -1,34 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*'
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS'
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
-          }
-        ]
-      }
-    ]
-  },
+  output: 'standalone',
   images: {
-    domains: ['firebasestorage.googleapis.com', 'lh3.googleusercontent.com'],
+    domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb'
-    }
-  }
 }
 
 module.exports = nextConfig 

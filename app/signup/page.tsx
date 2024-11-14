@@ -18,8 +18,6 @@ import { useRouter } from 'next/navigation'
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { z } from 'zod'
 import { useToast } from "@/components/ui/use-toast"
-import { Toaster } from "@/components/ui/toaster"
-import type { Toast } from '@/lib/utils'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -259,7 +257,6 @@ export default function SignUp() {
           </div>
         </div>
       </div>
-      <Toaster />
     </div>
   )
 }

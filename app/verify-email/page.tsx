@@ -7,8 +7,6 @@ import { applyActionCode } from 'firebase/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { useToast } from "@/components/ui/use-toast"
-import { Toaster } from "@/components/ui/toaster"
-import type { Toast } from '@/lib/utils'
 
 export default function VerifyEmail() {
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -58,32 +56,29 @@ export default function VerifyEmail() {
   }
 
   return (
-    <>
-      <div className="container flex items-center justify-center min-h-screen py-12">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Email Verification</CardTitle>
-            <CardDescription>
-              {verificationStatus === 'loading' && 'Verifying your email...'}
-              {verificationStatus === 'success' && 'Your email has been verified successfully!'}
-              {verificationStatus === 'error' && 'There was an error verifying your email.'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {verificationStatus === 'success' && (
-              <Button onClick={handleContinue} className="w-full">
-                Continue to Sign In
-              </Button>
-            )}
-            {verificationStatus === 'error' && (
-              <Button onClick={() => router.push('/signup')} variant="secondary" className="w-full">
-                Back to Sign Up
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-      <Toaster />
-    </>
+    <div className="container flex items-center justify-center min-h-screen py-12">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Email Verification</CardTitle>
+          <CardDescription>
+            {verificationStatus === 'loading' && 'Verifying your email...'}
+            {verificationStatus === 'success' && 'Your email has been verified successfully!'}
+            {verificationStatus === 'error' && 'There was an error verifying your email.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {verificationStatus === 'success' && (
+            <Button onClick={handleContinue} className="w-full">
+              Continue to Sign In
+            </Button>
+          )}
+          {verificationStatus === 'error' && (
+            <Button onClick={() => router.push('/signup')} variant="secondary" className="w-full">
+              Back to Sign Up
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 } 
