@@ -75,20 +75,11 @@ export default function SignIn() {
       return
     }
 
-    const handleRedirectResult = async () => {
-      if (!auth) return
-      
-      try {
-        const result = await auth.getRedirectResult()
-        if (result?.user) {
-          await router.replace('/dashboard')
-        }
-      } catch (error) {
-        setIsProcessingRedirect(false)
-      }
+    const currentUser = auth.currentUser
+    if (currentUser) {
+      router.replace('/dashboard')
+      return
     }
-
-    handleRedirectResult()
 
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -123,21 +114,20 @@ export default function SignIn() {
   }
 
   const handleGoogleSignIn = async () => {
-    if (!auth) {
-      console.error('Auth not initialized')
-      return
-    }
+    if (!auth) return
+    
     try {
       setIsProcessingRedirect(true)
       const provider = new firebase.auth.GoogleAuthProvider()
       provider.addScope('profile')
       provider.addScope('email')
       
-      await auth.signInWithRedirect(provider)
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setIsProcessingRedirect(false)
+      const result = await auth.signInWithPopup(provider)
+      if (result.user) {
+        await router.replace('/dashboard')
       }
+    } catch (error) {
+      setIsProcessingRedirect(false)
     }
   }
 

@@ -27,10 +27,11 @@ if (typeof window !== 'undefined') {
 
         const app = firebase.initializeApp({
           ...firebaseConfig,
-          authDomain: 'chess-analyzer-cbda1.firebaseapp.com'
+          authDomain: firebaseConfig.authDomain
         })
         
         auth = app.auth()
+        
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
           .catch(() => {/* Handle silently */})
 
