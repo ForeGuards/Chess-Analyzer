@@ -27,22 +27,9 @@ if (typeof window !== 'undefined') {
       
       // Add auth state listener with improved error handling
       auth.onAuthStateChanged((user) => {
-        if (user) {
-          // Only log when user exists to reduce noise
-          console.log('Auth state changed:', {
-            isAuthenticated: true,
-            email: user.email,
-            timestamp: new Date().toISOString(),
-            environment: process.env.NODE_ENV,
-            domain: window.location.hostname
-          })
-        }
+        // Authentication state changed
       }, (error) => {
-        console.error('Auth state error:', {
-          message: error.message,
-          code: error.code,
-          domain: window.location.hostname
-        })
+        // Auth error occurred
       })
       
     } catch (error: unknown) {

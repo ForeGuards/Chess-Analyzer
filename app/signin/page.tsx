@@ -15,7 +15,7 @@ import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import { useRouter } from 'next/navigation'
 
-import { auth, signInWithProvider } from '@/lib/firebase'
+import { auth } from '@/lib/firebase'
 
 const testimonials = [
   {

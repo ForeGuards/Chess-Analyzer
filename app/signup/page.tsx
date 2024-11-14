@@ -69,11 +69,15 @@ export default function SignUp() {
 
     if (isValid) {
       try {
+        if (!auth) {
+          throw new Error('Auth not initialized')
+        }
         await auth.createUserWithEmailAndPassword(email, password)
-        console.log('Sign-up successful!')
-        router.push('/dashboard')
+        await router.replace('/dashboard')
       } catch (error) {
-        console.error('Sign-up error:', error)
+        if (error instanceof Error) {
+          setErrors({ ...errors, email: error.message })
+        }
       }
     } else {
       setErrors(newErrors)
@@ -82,34 +86,46 @@ export default function SignUp() {
 
   const handleGoogleSignIn = async () => {
     try {
+      if (!auth) {
+        throw new Error('Auth not initialized')
+      }
       const provider = new firebase.auth.GoogleAuthProvider()
       await auth.signInWithPopup(provider)
-      console.log('Google sign-in successful!')
-      router.push('/dashboard')
+      await router.replace('/dashboard')
     } catch (error) {
-      console.error('Google sign-in error:', error)
+      if (error instanceof Error) {
+        setErrors({ ...errors, email: error.message })
+      }
     }
   }
 
   const handleGithubSignIn = async () => {
     try {
+      if (!auth) {
+        throw new Error('Auth not initialized')
+      }
       const provider = new firebase.auth.GithubAuthProvider()
       await auth.signInWithPopup(provider)
-      console.log('GitHub sign-in successful!')
-      router.push('/dashboard')
+      await router.replace('/dashboard')
     } catch (error) {
-      console.error('GitHub sign-in error:', error)
+      if (error instanceof Error) {
+        setErrors({ ...errors, email: error.message })
+      }
     }
   }
 
   const handleAppleSignIn = async () => {
     try {
+      if (!auth) {
+        throw new Error('Auth not initialized')
+      }
       const provider = new firebase.auth.OAuthProvider('apple.com')
       await auth.signInWithPopup(provider)
-      console.log('Apple sign-in successful!')
-      router.push('/dashboard')
+      await router.replace('/dashboard')
     } catch (error) {
-      console.error('Apple sign-in error:', error)
+      if (error instanceof Error) {
+        setErrors({ ...errors, email: error.message })
+      }
     }
   }
 

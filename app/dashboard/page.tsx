@@ -69,7 +69,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-import { useMediaQuery } from '@/hooks/use-media-query'
 import { auth } from '@/lib/firebase'
 import { useRouter } from 'next/navigation'
 
@@ -114,26 +113,6 @@ function StatsCard({
       <CardContent className="p-0 space-y-1">
         <div className={`text-2xl font-bold ${valueColor}`}>{value}</div>
         <div className="text-sm text-muted-foreground">{label}</div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function OverallStatistics() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Overall Statistics</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-4">
-            <StatsCard value="-" label="Lifetime matches" />
-            <StatsCard value="-" label="Victory percentage" />
-            <StatsCard value="-" label="Current performance" />
-            <StatsCard value="-" label="Peak performance" />
-          </div>
-        </div>
       </CardContent>
     </Card>
   )
