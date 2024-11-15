@@ -31,7 +31,8 @@
     "react-hot-toast": "^2.4.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.21.4"
+    "zod": "^3.21.4",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",

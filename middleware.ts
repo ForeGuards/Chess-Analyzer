@@ -13,6 +13,11 @@ export function middleware(request: NextRequest) {
   response.headers.delete('Cross-Origin-Opener-Policy')
 
   response.headers.set(
+    'Cross-Origin-Opener-Policy',
+    'same-origin-allow-popups'
+  )
+
+  response.headers.set(
     'Content-Security-Policy',
     `
       default-src 'self';
@@ -33,7 +38,10 @@ export function middleware(request: NextRequest) {
         https://*.vercel.app
         https://*.pusher.com 
         wss://*.pusher.com 
-        https://sockjs.pusher.com;
+        https://sockjs.pusher.com
+        https://*.supabase.co
+        https://*.supabase.in
+        https://khzavnbongoanukvqhli.supabase.co;
       worker-src 'self' blob:;
       form-action 'self';
       base-uri 'self';
@@ -46,6 +54,19 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|images).*)',
-  ]
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    {
+      source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+      missing: [
+        { type: 'header', key: 'next-router-prefetch' },
+        { type: 'header', key: 'purpose', value: 'prefetch' },
+      ],
+    },
+  ],
 } 

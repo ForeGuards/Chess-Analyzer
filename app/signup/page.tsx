@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { createUserWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth'
 import { z } from 'zod'
 import { useToast } from "@/components/ui/use-toast"
+import { syncUserToDatabase } from '@/lib/services/userService'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -71,6 +72,9 @@ export default function SignUp() {
         formData.password
       )
       
+      // Sync user data to Supabase
+      await syncUserToDatabase(userCredential.user)
+      
       // Send verification email with the new action URL
       await sendEmailVerification(userCredential.user, {
         url: `${window.location.origin}/auth/action?mode=verifyEmail`,
@@ -104,12 +108,26 @@ export default function SignUp() {
         throw new Error('Auth not initialized')
       }
       const provider = new firebase.auth.GoogleAuthProvider()
-      await auth.signInWithPopup(provider)
+      const result = await auth.signInWithPopup(provider)
+      
+      if (result.user) {
+        const syncResult = await syncUserToDatabase(result.user)
+        if (!syncResult.success) {
+          toast({
+            title: "Warning",
+            description: "Account created but some features may be limited. Please try again later.",
+            variant: "destructive",
+          })
+        }
+      }
+      
       await router.replace('/dashboard')
     } catch (error) {
-      if (error instanceof Error) {
-        setErrors({ ...errors, email: error.message })
-      }
+      toast({
+        title: "Error",
+        description: "Failed to sign in with Google. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -119,12 +137,26 @@ export default function SignUp() {
         throw new Error('Auth not initialized')
       }
       const provider = new firebase.auth.GithubAuthProvider()
-      await auth.signInWithPopup(provider)
+      const result = await auth.signInWithPopup(provider)
+      
+      if (result.user) {
+        const syncResult = await syncUserToDatabase(result.user)
+        if (!syncResult.success) {
+          toast({
+            title: "Warning",
+            description: "Account created but some features may be limited. Please try again later.",
+            variant: "destructive",
+          })
+        }
+      }
+      
       await router.replace('/dashboard')
     } catch (error) {
-      if (error instanceof Error) {
-        setErrors({ ...errors, email: error.message })
-      }
+      toast({
+        title: "Error",
+        description: "Failed to sign in with GitHub. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -134,12 +166,26 @@ export default function SignUp() {
         throw new Error('Auth not initialized')
       }
       const provider = new firebase.auth.OAuthProvider('apple.com')
-      await auth.signInWithPopup(provider)
+      const result = await auth.signInWithPopup(provider)
+      
+      if (result.user) {
+        const syncResult = await syncUserToDatabase(result.user)
+        if (!syncResult.success) {
+          toast({
+            title: "Warning",
+            description: "Account created but some features may be limited. Please try again later.",
+            variant: "destructive",
+          })
+        }
+      }
+      
       await router.replace('/dashboard')
     } catch (error) {
-      if (error instanceof Error) {
-        setErrors({ ...errors, email: error.message })
-      }
+      toast({
+        title: "Error",
+        description: "Failed to sign in with Apple. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
